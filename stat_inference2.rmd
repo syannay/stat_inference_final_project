@@ -1,0 +1,102 @@
+---
+title: "Statistical Inference - Part2"
+author: "Shimon Yannay"
+date: "3/12/2019"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+# Statistical Inference Course Project
+## Overview
+The project consists of two parts:
+
+A simulation exercise.
+Basic inferential data analysis.
+
+
+## Part 2: Basic Inferential Data Analysis Instructionsless 
+Now in the second portion of the project, we're going to analyze the ToothGrowth data in the R datasets package.
+
+### Load the ToothGrowth data and perform some basic exploratory data analyses
+
+The response is the length of odontoblasts (cells responsible for tooth growth) in 60 guinea pigs. Each animal received one of three dose levels of vitamin C (0.5, 1, and 2 mg/day) by one of two delivery methods, orange juice or ascorbic acid (a form of vitamin C and coded as VC).
+
+Usage
+ToothGrowth
+Format
+A data frame with 60 observations on 3 variables.
+
+[,1]	len	numeric	Tooth length
+[,2]	supp	factor	Supplement type (VC or OJ).
+[,3]	dose	numeric	Dose in milligrams/day
+
+```{r 2.1, echo=TRUE}
+data("ToothGrowth")
+str(ToothGrowth)
+summary(ToothGrowth)
+head(ToothGrowth)
+ggplot(aes(x=dose, y = len), data = ToothGrowth) + 
+     labs(x = "Length", y = "Frequency", title = "Tooth Length per Dose and Supplement") +
+    geom_point(aes(color = supp))
+
+ggplot(data=ToothGrowth, aes(x=as.factor(dose), y=len, fill=supp)) +
+    geom_bar(stat="identity") +
+    facet_grid(. ~ supp) +
+    xlab("Dose") +
+    ylab("Length") +
+    labs(title = "Tooth Length per Dose") +
+    guides(fill=guide_legend(title="Supplement"))
+
+ggplot(data=ToothGrowth, aes(x=as.factor(supp), y=len, fill=dose)) +
+    geom_bar(stat="identity") +
+    facet_grid(. ~ dose) +
+    xlab("Supplement") +
+    ylab("Length") +
+    labs(title = "Tooth Length per Supplement") +
+    guides(fill=guide_legend(title="Dose"))
+```
+
+### Provide a basic summary of the data
+
+We can see that there is an impact on tooth growth with regard to two parameters: 1. By increasing the dose value 2. By supplementing the vitamins with OJ rather than with VC
+
+```{r 2.2, echo=TRUE}
+
+```
+
+### Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. (Only use the techniques from class, even if there's other approaches worth considering)
+```{r 2.3, echo=TRUE}
+t.test(ToothGrowth$len[ToothGrowth$supp=="OJ"], ToothGrowth$len[ToothGrowth$supp=="VC"], paired = FALSE, var.equal = FALSE)
+```
+The p-value is 0.06063 and the confidence interval is [-0.1710156 7.5710156] (containing the 0)
+
+Since p-value is 0.06063 (bigger than 0.05), it is not satisfactory to reject the null hypothesis.
+We cannot assume the supplement type has a significant effect on tooth growth
+
+```{r}
+t.test(ToothGrowth$len[ToothGrowth$dose==2], ToothGrowth$len[ToothGrowth$dose==1], paired = FALSE, var.equal = TRUE)
+```
+We see the p-value is very small, and is significant. Therefore, we can reject the null hypothesis and assume the dose increase from 1mg to 2mg has a positive effect on tooth growth
+```{r}
+t.test(ToothGrowth$len[ToothGrowth$dose==1], ToothGrowth$len[ToothGrowth$dose==0.5], paired = FALSE, var.equal = TRUE)
+```
+We see that the p-value is small, meaning it is significant.
+
+This concludes tha we can reject the null hypothesis and assume the dose increase from 0.5mg to 1mg has a positive effect on tooth growth
+
+
+### State your conclusions and the assumptions needed for your conclusions
+#### Assumptions 
+- Guinea pigs have been sampled randomly.
+- Environmental influence of both groups are the same
+
+#### Conclusions
+- The supplement type does not show a significant increase in tooth growth even though it does have a confidence level that crosses 0 at the 95% confidence.
+
+- It appears that there an increase in tooth growth when the dose is increased
